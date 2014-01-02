@@ -172,6 +172,9 @@ type Limits struct {
 	RealtimeTimeout  *Limit
 }
 
+//
+// Create a Limit instance from a /proc/<pid>/limits path
+//
 func New(path string) (*Limits, error) {
 
 	buf, err := ioutil.ReadFile(path)

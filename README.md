@@ -13,10 +13,16 @@ go get github.com/jandre/procfs
 See the `*_test` files. 
 
 ```go
+import (
+  "github.com/jandre/procfs"
+)
 
 // fetch all processes from /proc
+// returns a map of pid -> *Process 
 processes, err := procfs.AllProcesses();
 
 ```
 
 # Documentation
+
+Documentation can be found at: http://godoc.org/github.com/jandre/procfs
