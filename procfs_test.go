@@ -9,7 +9,7 @@ import (
 // }
 //
 func TestAllProc(t * testing.T) {
-	procs, err := LoadAllProcesses(false)
+	procs, err := Processes(false)
 	if err != nil {
 		t.Fatal(err)
 	}
