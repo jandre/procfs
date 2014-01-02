@@ -19,7 +19,7 @@ import (
 
 // fetch all processes from /proc
 // returns a map of pid -> *Process 
-processes, err := procfs.AllProcesses();
+processes, err := procfs.Processes();
 
 ```
 
