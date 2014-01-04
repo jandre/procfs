@@ -4,11 +4,11 @@ Procfs is a parser for the /proc virtual filesystem on Linux.
 
 But don't use it for production yet, I'm still refining it.
 
-# Install
+## Installation
 
 go get github.com/jandre/procfs 
 
-# Example
+## Examples
 
 See the `*_test` files. 
 
@@ -19,10 +19,10 @@ import (
 
 // fetch all processes from /proc
 // returns a map of pid -> *Process 
-processes, err := procfs.AllProcesses();
+processes, err := procfs.Processes();
 
 ```
 
-# Documentation
+E# Documentation
 
 Documentation can be found at: http://godoc.org/github.com/jandre/procfs
