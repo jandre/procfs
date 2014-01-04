@@ -1,14 +1,20 @@
+//
+// stat.Stat describes data in /proc/<pid>/stat.
+//
+// Use stat.New() to create a new stat.Stat object
+// from data in a path.
+//
 package stat
 
 import (
 	"io/ioutil"
 	"github.com/jandre/procfs/util"
-	"reflect"
 	"strings"
+	"time"
 )
 
 //
-// Abstraction for /proc/<pid>/stat
+// Stat is a data structure that maps to /proc/<pid>/stat.
 //
 type Stat struct {
 	Pid                 int                 // process id
@@ -24,15 +30,15 @@ type Stat struct {
 	Cminflt             int64               // number of minor faults with child's
 	Majflt              int64               // number of major faults
 	Cmajflt             int64               // number of major faults with child's
-	Utime               util.EpochTimestamp // user mode jiffies
-	Stime               util.EpochTimestamp // kernel mode jiffies
-	Cutime              util.EpochTimestamp // user mode jiffies with child's
-	Cstime              util.EpochTimestamp // kernel mode jiffies with child's
+	Utime               time.Time // user mode jiffies
+	Stime               time.Time // kernel mode jiffies
+	Cutime              time.Time // user mode jiffies with child's
+	Cstime              time.Time // kernel mode jiffies with child's
 	Priority            int64               // priority level
 	Nice                int64               // nice level
 	NumThreads          int64               // number of threads
 	Itrealvalue         int64               // (obsolete, always 0)
-	Starttime           util.EpochTimestamp // time the process started after system boot
+	Starttime           time.Time // time the process started after system boot
 	Vsize               int64               // virtual memory size
 	Rss                 int64               // resident set memory size
 	Rlim                uint64              // current limit in bytes on the rss
@@ -56,7 +62,9 @@ type Stat struct {
 }
 
 //
-// Load /proc/<pid>/stat from path
+// stat.New creates a new /proc/<pid>/stat from a path.
+//
+// An error is returned if the data is malformed, or the path does not exist.
 //
 func New(path string) (*Stat, error) {
 
@@ -67,8 +75,6 @@ func New(path string) (*Stat, error) {
 
 	lines := strings.Split(string(buf), " ")
 	stat := &Stat{}
-
-	v := reflect.ValueOf(stat).Elem()
-	err = util.StructParser(&v, lines)
+	err = util.ParseStringsIntoStruct(stat, lines)
 	return stat, err
 }

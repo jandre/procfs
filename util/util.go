@@ -36,8 +36,15 @@ import (
 import "C"
 
 //
-// fetch the system start time from /proc/stat
-// look for the btime line, and parse it out
+// systemStart() attempts to detect the system start time. 
+//
+// It will attempt to fetch the system start time by parsing /proc/stat
+// look for the btime line, and converting that to an int64 value (the start
+// time in Epoch seconds).
+//
+// This value must be used for certain /proc time values that are specified
+// in 'jiffies', and is used with the _SC_CLK_TCK retrieved from sysconf(3)
+// to calculate epoch timestamps.
 //
 //
 func systemStart() int64 {
@@ -58,8 +65,7 @@ func systemStart() int64 {
 		}
 	}
 
-	log.Fatal(`No btime found in /proc/stat.
-	This value is needed to calculate timestamps`)
+	log.Fatal("No btime found in /proc/stat.  This value is needed to calculate timestamps")
 
 	return 0
 }
@@ -67,50 +73,17 @@ func systemStart() int64 {
 var GLOBAL_SYSTEM_START int64 = systemStart()
 
 //
-// converts jiffies to seconds since epoch
+// jiffiesToTime converts jiffies to a Time object
+// using the GLOBAL_SYSTEM_START time and the value of the
+// _SC_CLK_TICK value obtained from sysconf(3).
 //
-func JiffiesToEpoch(jiffies int64) int64 {
+// To get the # of seconds elapsed since system start, we do jiffies / _SC_CLK_TCK.
+//
+// We then add the system start time (GLOBAL_SYSTEM_START) to get the epoch
+// timestamp in seconds.
+//
+func jiffiesToTime(jiffies int64) time.Time {
 	ticks := C.sysconf(C._SC_CLK_TCK)
-	return GLOBAL_SYSTEM_START + jiffies/int64(ticks)
+	return time.Unix(GLOBAL_SYSTEM_START + jiffies/int64(ticks), 0)
 }
 
-type EpochTimestamp struct {
-	jiffies int64
-}
-
-//
-// Create a new epoch timestamp from a `jiffies since
-// system start time` value
-//
-//
-func NewEpochTimestamp(jiffies int64) EpochTimestamp {
-	return EpochTimestamp{jiffies: jiffies}
-}
-
-//
-// Get the timestamp in seconds since Epoch
-//
-func (e *EpochTimestamp) EpochSeconds() int64 {
-	return JiffiesToEpoch(e.jiffies)
-}
-
-//
-// Get the timestamp in milliseconds since Epoch
-//
-func (e *EpochTimestamp) EpochMilliseconds() int64 {
-	return e.EpochSeconds() * 1000
-}
-
-//
-// Get the timestamp as a Time object
-//
-func (e *EpochTimestamp) Time() time.Time {
-	return time.Unix(e.EpochSeconds(), 0)
-}
-
-//
-// Get the jiffies value
-//
-func (e *EpochTimestamp) Jiffies() int64 {
-	return e.jiffies
-}

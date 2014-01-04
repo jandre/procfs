@@ -1,3 +1,9 @@
+//
+// statm.Statm describes data in /proc/<pid>/statm.
+//
+// Use statm.New() to create a new stat.Statm object
+// from data in a path.
+//
 package statm
 
 //
@@ -26,7 +32,6 @@ package statm
 import (
 	"io/ioutil"
 	"github.com/jandre/procfs/util"
-	"reflect"
 	"strings"
 )
 
@@ -52,8 +57,6 @@ func New(path string) (*Statm, error) {
 
 	lines := strings.Split(string(buf), " ")
 	stat := &Statm{}
-
-	v := reflect.ValueOf(stat).Elem()
-	err = util.StructParser(&v, lines)
+	err = util.ParseStringsIntoStruct(stat, lines)
 	return stat, err
 }

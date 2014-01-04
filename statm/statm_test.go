@@ -2,10 +2,9 @@ package statm
 
 import (
 	// "procfs/util"
-	"testing"
 	"log"
+	"testing"
 )
-
 
 func TestParsingStatm(t *testing.T) {
 	// set the GLOBAL_SYSTEM_START
@@ -23,7 +22,7 @@ func TestParsingStatm(t *testing.T) {
 	if s.Size != 134008 {
 		t.Fatal("Expected size to be 134008")
 	}
-	if s.Resident != 7292 {
+	if s.Resident != 72921 {
 		t.Fatal("Expected Resident to be 72921")
 	}
 }

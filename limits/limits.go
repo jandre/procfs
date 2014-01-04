@@ -1,3 +1,9 @@
+//
+// limits.Limits describes data in /proc/<pid>/limits.
+//
+// Use limits.New() to create a new limits.Limits object
+// from data in a limits file.
+//
 package limits
 
 // Copyright Jen Andre (jandre@gmail.com)
@@ -21,12 +27,10 @@ package limits
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 import (
 	"bytes"
 	"io/ioutil"
 	"log"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -44,7 +48,7 @@ const (
 	Signals        = "signals"
 	Locks          = "locks"
 	Us             = "us"
-	Unknown        = "Unknown"
+	Unknown        = "unknown"
 )
 
 type Limit struct {
@@ -67,13 +71,14 @@ func makeUnit(str string) Unit {
 		return Files
 	case "us":
 		return Us
-
 	}
 	return Unknown
 }
 
-// parse a limit value
-// it's either an int, or 'unlimited'
+//
+// parseLimit parses a limit value from a string
+// if the value is 'unlimited', it will be set to
+// UNLIMITED (-1)
 func parseLimit(str string) (int, error) {
 	if str == "unlimited" {
 		return UNLIMITED, nil
@@ -88,7 +93,9 @@ var splitBy2Whitespace = regexp.MustCompile("\\s\\s+")
 var camelingRegex = regexp.MustCompile("[0-9A-Za-z]+")
 
 //
-// convert a string with spaces to CamelCase
+// toCamelCase converts a spaced string to CamelCase
+//
+// e.g., "my string is" becomes "MyStringIs"
 //
 func toCamelCase(str string) string {
 	byteSrc := []byte(str)
@@ -101,6 +108,10 @@ func toCamelCase(str string) string {
 	return string(bytes.Join(chunks, nil))
 }
 
+//
+// linesToLimits turns every line in in a /proc/pid/limits file
+// to a Limit object.   
+//
 func linesToLimits(lines []string) (map[string]*Limit, error) {
 	var result map[string]*Limit = make(map[string]*Limit)
 	var units Unit
@@ -151,7 +162,12 @@ func linesToLimits(lines []string) (map[string]*Limit, error) {
 }
 
 //
-// Abstraction for /proc/<pid>/limit
+// Limits is abstraction for /proc/<pid>/limit
+//
+// Each Limit pointer pointers to a Limit object, 
+// which has the HardValue, SoftValue, and Units.
+//
+// If no limit is found, it will be nil. 
 //
 type Limits struct {
 	CpuTime          *Limit
@@ -189,18 +205,23 @@ func New(path string) (*Limits, error) {
 	}
 
 	limit := &Limits{}
-	v := reflect.ValueOf(limit).Elem()
-	typeOf := v.Type()
 
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		name := typeOf.Field(i).Name
-		if limits[name] != nil {
-			field.Set(reflect.ValueOf(limits[name]))
-		} else {
-			// TODO: error?
-			log.Println("Missing field:", name)
-		}
-	}
+	limit.CpuTime = limits["CpuTime"]
+	limit.FileSize = limits["FileSize"]
+	limit.DataSize = limits["DataSize"]
+	limit.StackSize = limits["StackSize"]
+	limit.CoreFileSize = limits["CoreFileSize"]
+	limit.ResidentSet = limits["ResidentSet"]
+	limit.Processes = limits["Processes"]
+	limit.OpenFiles = limits["OpenFiles"]
+	limit.LockedMemory = limits["LockedMemory"]
+	limit.AddressSpace = limits["AddressSpace"]
+	limit.FileLocks = limits["FileLocks"]
+	limit.PendingSignals = limits["PendingSignals"]
+	limit.MsgqueueSize = limits["MsgqueueSize"]
+	limit.NicePriority = limits["NicePriority"]
+	limit.RealtimePriority = limits["RealtimePriority"]
+	limit.RealtimeTimeout = limits["RealtimeTimeout"]
+
 	return limit, nil
 }
