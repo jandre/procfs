@@ -30,8 +30,8 @@ package statm
 //
 
 import (
-	"io/ioutil"
 	"github.com/jandre/procfs/util"
+	"io/ioutil"
 	"strings"
 )
 
