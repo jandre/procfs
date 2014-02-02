@@ -13,14 +13,25 @@ go get github.com/jandre/procfs
 See the `*_test` files. 
 
 ```go
-import (
-  "github.com/jandre/procfs"
-)
+package main
 
-// fetch all processes from /proc
-// returns a map of pid -> *Process 
-processes, err := procfs.Processes();
+import "github.com/jandre/procfs"
+import "fmt"
+import "log"
+import "strings"
 
+func main() {
+  processes, err := procfs.Processes(false, false)
+
+  if err != nil || len(processes) <= 0 {
+    log.Fatal("ERROR")
+  }
+
+  for _, p := range processes {
+    fmt.Printf("\nPID: %-10d\nCWD: %-30s\nEXE: %-30s", p.Pid, p.Cwd, p.Exe)
+    fmt.Printf("\nCMDLINE: %-70s\n", strings.Join(p.Cmdline, " "))
+  }
+}
 ```
 
 E# Documentation
