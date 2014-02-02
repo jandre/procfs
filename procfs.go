@@ -1,4 +1,5 @@
 package procfs
+
 //
 // License information:
 //
@@ -31,7 +32,7 @@ import (
 )
 
 //
-// Take a list of FileInfo from /proc listing and only return 
+// Take a list of FileInfo from /proc listing and only return
 // pid directories
 //
 func filterByPidDirectories(files []os.FileInfo) []int {
@@ -39,7 +40,7 @@ func filterByPidDirectories(files []os.FileInfo) []int {
 
 	for _, file := range files {
 		if file.IsDir() {
-			if pid,  err := strconv.Atoi(file.Name()); err == nil {
+			if pid, err := strconv.Atoi(file.Name()); err == nil {
 				result = append(result, pid)
 			}
 		}
@@ -50,8 +51,8 @@ func filterByPidDirectories(files []os.FileInfo) []int {
 //
 // Load all processes from /proc
 //
-// If lazy = true, do not load ancillary information (/proc/<pid>/stat, 
-// /proc/<pid>/statm, etc) immediately - load it on demand 
+// If lazy = true, do not load ancillary information (/proc/<pid>/stat,
+// /proc/<pid>/statm, etc) immediately - load it on demand
 //
 func Processes(lazy bool) (map[int]*Process, error) {
 	processes := make(map[int]*Process)
@@ -66,8 +67,6 @@ func Processes(lazy bool) (map[int]*Process, error) {
 	fetch := func(pid int) {
 		proc, err := NewProcess(pid, lazy)
 		if err != nil {
-			// TODO: bubble errors up if requested
-			log.Println("Failure loading process pid: ", pid, err)
 			done <- nil
 		} else {
 			done <- proc
@@ -81,10 +80,10 @@ func Processes(lazy bool) (map[int]*Process, error) {
 		go fetch(pid)
 	}
 
-	// 
+	//
 	// fetch all processes until we're done
 	//
-	for ;todo > 0; {
+	for todo > 0 {
 		proc := <-done
 		todo--
 		if proc != nil {
