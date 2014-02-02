@@ -3,6 +3,7 @@ package procfs
 import (
 	"testing"
 	"log"
+	"fmt"
 )
 // func BenchmarkAllProc() {
 
@@ -17,8 +18,15 @@ func TestAllProc(t * testing.T) {
 		t.Fatal("procs length must be > 0")
 	}
 
-	log.Println("Pid 1", procs[1])
-	// for ;; {
-		// // noop
+	log.Println("Pid 1", procs[0])
+	for i, p := range procs {
+		fmt.Printf("%d PID: %d - CMDLINE: %s - CWD: %s - EXE: %s\n", i, p.Pid, p.Cmdline, p.Cwd, p.Exe)
+		// noop
+	}
+
+	// for i := 0; i < len(procs); i++ {
+		// p := procs[i];
+		// log.Println("%d PID: %d - CMDLINE: %s - CWD: %s - EXE: %s\n", p.Pid, p.Cmdline, p.Cwd, p.Exe)
 	// }
+
 }
