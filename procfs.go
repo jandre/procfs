@@ -54,7 +54,7 @@ func filterByPidDirectories(files []os.FileInfo) []int {
 // If lazy = true, do not load ancillary information (/proc/<pid>/stat,
 // /proc/<pid>/statm, etc) immediately - load it on demand
 //
-func Processes(lazy bool, debug bool) (map[int]*Process, error) {
+func Processes(lazy bool) (map[int]*Process, error) {
 	processes := make(map[int]*Process)
 	done := make(chan *Process)
 	files, err := ioutil.ReadDir("/proc")
@@ -67,10 +67,6 @@ func Processes(lazy bool, debug bool) (map[int]*Process, error) {
 	fetch := func(pid int) {
 		proc, err := NewProcess(pid, lazy)
 		if err != nil {
-			// TODO: bubble errors up if requested
-			if debug {
-				log.Println("Failure loading process pid: ", pid, err)
-			}
 			done <- nil
 		} else {
 			done <- proc

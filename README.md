@@ -21,7 +21,7 @@ import "log"
 import "strings"
 
 func main() {
-  processes, err := procfs.Processes(false, false)
+  processes, err := procfs.Processes(false)
 
   if err != nil || len(processes) <= 0 {
     log.Fatal("ERROR")
