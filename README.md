@@ -1,16 +1,16 @@
 # Procfs
 
-Procfs is a parser for the /proc virtual filesystem on Linux.
+Procfs is a parser for the /proc virtual filesystem on Linux written in the Go programming lanugage.
 
-But don't use it for production yet, I'm still refining it.
+Not all /proc interfaces are currently supported; but pull requests are welcome!
 
 # Install
 
 go get github.com/jandre/procfs 
 
-# Example
+# Examples
 
-See the `*_test` files. 
+See the `*_test` files for usage, but in short:
 
 ```go
 import (

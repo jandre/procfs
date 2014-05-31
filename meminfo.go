@@ -98,7 +98,7 @@ func linesToMeminfo(lines []string) (map[string]int64, error) {
 }
 
 //
-// Load a Meminfo object from a path
+// Load a Meminfo object from a path.  
 //
 func ParseMeminfo(path string) (*Meminfo, error) {
 

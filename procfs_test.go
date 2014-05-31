@@ -4,10 +4,7 @@ import (
 	"testing"
 	"log"
 )
-// func BenchmarkAllProc() {
 
-// }
-//
 func TestAllProc(t * testing.T) {
 	procs, err := Processes(false)
 	if err != nil {
@@ -18,7 +15,4 @@ func TestAllProc(t * testing.T) {
 	}
 
 	log.Println("Pid 1", procs[1])
-	// for ;; {
-		// // noop
-	// }
 }
