@@ -24,15 +24,14 @@ package procfs
 import (
 	"io/ioutil"
 	"log"
-	"reflect"
 	"strconv"
 	"strings"
 )
 
 //
-// Parser for /proc/meminfo
+// Meminfo is a parser for /proc/meminfo.
 //
-
+//
 type Meminfo struct {
 	MemTotal      int64
 	MemFree       int64
@@ -98,7 +97,9 @@ func linesToMeminfo(lines []string) (map[string]int64, error) {
 }
 
 //
-// Load a Meminfo object from a path.  
+// ParseMeminfo() loads a Meminfo object from a supplied path string.
+//
+// If the path cannot be found, it will return an error.
 //
 func ParseMeminfo(path string) (*Meminfo, error) {
 
@@ -114,20 +115,44 @@ func ParseMeminfo(path string) (*Meminfo, error) {
 	}
 
 	meminfo := &Meminfo{}
-	v := reflect.ValueOf(meminfo).Elem()
-	typeOf := v.Type()
+	meminfo.MemTotal      = meminfos["MemTotal"]
+	meminfo.MemFree       = meminfos["MemFree"]
+	meminfo.Buffers       = meminfos["Buffers"]
+	meminfo.Cached        = meminfos["Cached"]
+	meminfo.SwapCached    = meminfos["SwapCached"]
+	meminfo.Active        = meminfos["Active"]
+	meminfo.Inactive      = meminfos["Inactive"]
+	meminfo.HighTotal     = meminfos["HighTotal"]
+	meminfo.HighFree      = meminfos["HighFree"]
+	meminfo.LowTotal      = meminfos["LowTotal"]
+	meminfo.LowFree       = meminfos["LowFree"]
+	meminfo.SwapTotal     = meminfos["SwapTotal"]
+	meminfo.SwapFree      = meminfos["SwapFree"]
+	meminfo.Dirty         = meminfos["Dirty"]
+	meminfo.Writeback     = meminfos["Writeback"]
+	meminfo.AnonPages     = meminfos["AnonPages"]
+	meminfo.Mapped        = meminfos["Mapped"]
+	meminfo.Slab          = meminfos["Slab"]
+	meminfo.SReclaimable  = meminfos["SReclaimable"]
+	meminfo.SUnreclaim    = meminfos["SUnreclaim"]
+	meminfo.PageTables    = meminfos["PageTables"]
+	meminfo.NFS_Unstable  = meminfos["NFS_Unstable"]
+	meminfo.Bounce        = meminfos["Bounce"]
+	meminfo.WritebackTmp  = meminfos["WritebackTmp"]
+	meminfo.CommitLimit   = meminfos["CommitLimit"]
+	meminfo.Committed_AS  = meminfos["Committed_AS"]
+	meminfo.VmallocTotal  = meminfos["VmallocTotal"]
+	meminfo.VmallocUsed   = meminfos["VmallocUsed"]
+	meminfo.VmallocChunk  = meminfos["VmallocChunk"]
+	meminfo.AnonHugePages = meminfos["AnonHugePages"]
 
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		name := typeOf.Field(i).Name
-		field.SetInt(meminfos[name])
-	}
 	return meminfo, nil
 
 }
 
 //
-// Create a new Meminfo object that loads from /proc/meminfo
+// NewMeminfo() creates a new Meminfo object that loads from /proc/meminfo.
+//
 //
 func NewMeminfo() (*Meminfo, error) {
 	return ParseMeminfo("/proc/meminfo")

@@ -16,9 +16,12 @@ func TestParseMeminfo(t *testing.T) {
 		t.Fatal("meminfo is missing")
 	}
 
-	// log.Println("Meminfo:", meminfo)
 	if meminfo.MemTotal != 1011932 {
-		t.Fatal("Expected 1011932 from MemToal")
+		t.Fatal("Expected 1011932 from MemTotal")
+	}
+
+	if meminfo.PageTables != 8340 {
+		t.Fatal("Expected 8340 from PageTables")
 	}
 }
 

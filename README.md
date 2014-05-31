@@ -4,12 +4,11 @@ Procfs is a parser for the /proc virtual filesystem on Linux written in the Go p
 
 Not all /proc interfaces are currently supported; but pull requests are welcome!
 
-# Install
+## Installation
 
 go get github.com/jandre/procfs 
 
-# Examples
-
+## Examples
 See the `*_test` files for usage, but in short:
 
 ```go
@@ -23,6 +22,6 @@ processes, err := procfs.Processes();
 
 ```
 
-# Documentation
+## Documentation
 
 Documentation can be found at: http://godoc.org/github.com/jandre/procfs

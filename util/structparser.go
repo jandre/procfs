@@ -23,74 +23,70 @@ package util
 // WITH THE SOFTWARE OR THE USE OR O
 
 import (
-	"errors"
-	"log"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //
-// Given an array of values, e.g. a[0..n]
-// Assign each value to a struct at position 0..n
+// ParseStringsIntoStruct expects a pointer to a struct as its
+// first argument. It assigns each element from the lines slice
+// sequentially to the struct members, parsing each according to
+// type. It currently accepts fields of type int, int64, string
+// and time.Time (it assumes that values of the latter kind
+// are formatted as a clock-tick count since the system start).
 //
-// For each array value a[0..n], try to convert it to
+// Extra lines are ignored.
 //
-//
-func StructParser(v *reflect.Value, lines []string) error {
-
+func ParseStringsIntoStruct(vi interface{}, strs []string) error {
+	v := reflect.ValueOf(vi).Elem()
 	typeOf := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {
-
-		if i > len(lines) {
+		if i > len(strs) {
 			break
 		}
-
-		field := v.Field(i)
-		line := strings.TrimSpace(lines[i])
-
-		switch field.Kind() {
-		// TODO: more types
-		case reflect.Int:
-			if val, err := strconv.Atoi(line); err != nil {
-				log.Println("Parsing Error:", typeOf.Field(i).Name, err)
-				return err
-			} else {
-				field.SetInt(int64(val))
-			}
-		case reflect.Int64:
-			if val, err := strconv.ParseInt(line, 10, 64); err != nil {
-				log.Println("Parsing Error:", typeOf.Field(i).Name, err)
-				return err
-			} else {
-				field.SetInt(val)
-			}
-
-		case reflect.String:
-			field.SetString(line)
-
-		case reflect.Struct:
-			//
-			// in the case of a jiffy timestamp value, we abstract it to a type
-			// that auto converts jiffies to epoch timestamps
-			//
-			if field.Type().Name() == "EpochTimestamp" {
-				if jiffies, err := strconv.ParseInt(line, 10, 64); err != nil {
-					log.Println("Parsing Error:", typeOf.Field(i).Name, err)
-					return err
-				} else {
-					e := NewEpochTimestamp(jiffies)
-					field.Set(reflect.ValueOf(e))
-				}
-			} else {
-				return errors.New("Unknown type: " + field.Type().Name())
-			}
-		default:
-			return errors.New("Unknown type: " + typeOf.Field(i).Name + "; type=" + field.Type().Name())
+		str := strings.TrimSpace(strs[i])
+		interf := v.Field(i).Addr().Interface()
+		if err := parseField(interf, str); err != nil {
+			return fmt.Errorf("cannot parse field %s=%q: %v", typeOf.Field(i).Name, str, err)
 		}
-
 	}
 	return nil
+}
 
+func parseField(field interface{}, line string) error {
+	switch field := field.(type) {
+	case *int:
+		val, err := strconv.Atoi(line)
+		if err != nil {
+			return err
+		}
+		*field = val
+	case *int64:
+		val, err := strconv.ParseInt(line, 10, 64)
+		if err != nil {
+			return err
+		}
+		*field = val
+	case *uint64:
+		val, err := strconv.ParseUint(line, 10, 64)
+		if err != nil {
+			return err
+		}
+		*field = val
+	case *string:
+		*field = line
+	case *time.Time:
+		jiffies, err := strconv.ParseInt(line, 10, 64)
+		if err != nil {
+			return err
+		}
+		*field = jiffiesToTime(jiffies)
+	default:
+		return fmt.Errorf("unsupported field type %T", field)
+	}
+	return nil
 }
