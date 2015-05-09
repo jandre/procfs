@@ -26,29 +26,30 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
+	"strings"
+
 	"github.com/jandre/procfs/limits"
 	"github.com/jandre/procfs/stat"
 	"github.com/jandre/procfs/statm"
-	"strconv"
-	"strings"
 )
 
 //
-// Structur that describes a /proc/<pid> entry
+// Process describes a /proc/<pid> entry
 //
-
 type Process struct {
-	Pid       int            // Process ID
-	Cmdline   []string       // Command line of process (argv array)
-	Cwd       string         // Process current working directory
-	Exe       string         // Symlink to executed command.
-	Root      string         // Per-process root (e.g. chroot)
-	prefix    string         // directory path, e.g. /proc/<pid>
-	stat      *stat.Stat     // Status information from /proc/pid/stat - see Stat()
-	statm     *statm.Statm   // Memory Status information from /proc/pid/statm - see Statm()
-	limits    *limits.Limits // Per process rlimit settings from /proc/pid/limits - see Limits()
-	loginuid  *int           // Maybe loginuid from /proc/pid/loginuid - see Loginuid()
-	sessionid *int           // Maybe sessionid from /proc/pid/sessionid- see Sessionid()
+	Pid       int               // Process ID
+	Environ   map[string]string // Environment variables
+	Cmdline   []string          // Command line of process (argv array)
+	Cwd       string            // Process current working directory
+	Exe       string            // Symlink to executed command.
+	Root      string            // Per-process root (e.g. chroot)
+	prefix    string            // directory path, e.g. /proc/<pid>
+	stat      *stat.Stat        // Status information from /proc/pid/stat - see Stat()
+	statm     *statm.Statm      // Memory Status information from /proc/pid/statm - see Statm()
+	limits    *limits.Limits    // Per process rlimit settings from /proc/pid/limits - see Limits()
+	loginuid  *int              // Maybe loginuid from /proc/pid/loginuid - see Loginuid()
+	sessionid *int              // Maybe sessionid from /proc/pid/sessionid- see Sessionid()
 
 }
 
@@ -73,7 +74,7 @@ func NewProcessFromPath(pid int, prefix string, lazy bool) (*Process, error) {
 		return nil, err
 	}
 
-	process := &Process{prefix: prefix, Pid: pid }
+	process := &Process{prefix: prefix, Pid: pid}
 	if process.Cmdline, err = readCmdLine(prefix); err != nil {
 		return nil, err
 	}
@@ -89,6 +90,8 @@ func NewProcessFromPath(pid int, prefix string, lazy bool) (*Process, error) {
 	if process.Root, err = readLink(prefix, "root"); err != nil {
 		return nil, err
 	}
+
+	process.readEnviron()
 
 	if !lazy {
 		// preload all of the subdirs
@@ -221,4 +224,18 @@ func (p *Process) Sessionid() int {
 		return *p.sessionid
 	}
 	return NO_VALUE
+}
+
+func (p *Process) readEnviron() {
+	p.Environ = make(map[string]string, 0)
+	bytes, err := ioutil.ReadFile(path.Join(p.prefix, "environ"))
+	if err != nil {
+		return
+	}
+	for _, item := range strings.Split(string(bytes), "\x00") {
+		fields := strings.SplitN(item, "=", 2)
+		if (len(fields) == 2) {
+			p.Environ[fields[0]] = fields[1]
+		}
+	}
 }
