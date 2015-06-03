@@ -32,6 +32,7 @@ import (
 	"github.com/jandre/procfs/limits"
 	"github.com/jandre/procfs/stat"
 	"github.com/jandre/procfs/statm"
+	"github.com/jandre/procfs/status"
 )
 
 //
@@ -47,6 +48,7 @@ type Process struct {
 	prefix    string            // directory path, e.g. /proc/<pid>
 	stat      *stat.Stat        // Status information from /proc/pid/stat - see Stat()
 	statm     *statm.Statm      // Memory Status information from /proc/pid/statm - see Statm()
+	status    *status.Status    //Status information from /proc/pid/status
 	limits    *limits.Limits    // Per process rlimit settings from /proc/pid/limits - see Limits()
 	loginuid  *int              // Maybe loginuid from /proc/pid/loginuid - see Loginuid()
 	sessionid *int              // Maybe sessionid from /proc/pid/sessionid- see Sessionid()
@@ -96,6 +98,8 @@ func NewProcessFromPath(pid int, prefix string, lazy bool) (*Process, error) {
 	if !lazy {
 		// preload all of the subdirs
 		process.Stat()
+		process.Statm()
+		process.Status()
 		process.Limits()
 		process.Loginuid()
 		process.Sessionid()
@@ -174,6 +178,34 @@ func (p *Process) Stat() (*stat.Stat, error) {
 }
 
 //
+// Parser for /proc/<pid>/statm
+//
+func (p *Process) Statm() (*statm.Statm, error) {
+	var err error
+	if p.statm == nil {
+		if p.statm, err = statm.New(path.Join(p.prefix, "statm")); err != nil {
+			return nil, err
+		}
+	}
+
+	return p.statm, nil
+}
+
+//
+// Parser for /proc/<pid>/status
+//
+func (p *Process) Status() (*status.Status, error) {
+	var err error
+	if p.status == nil {
+		if p.status, err = status.New(path.Join(p.prefix, "status")); err != nil {
+			return nil, err
+		}
+	}
+
+	return p.status, nil
+}
+
+//
 // Parser for /proc/<pid>/limits
 //
 func (p *Process) Limits() (*limits.Limits, error) {
@@ -234,7 +266,7 @@ func (p *Process) readEnviron() {
 	}
 	for _, item := range strings.Split(string(bytes), "\x00") {
 		fields := strings.SplitN(item, "=", 2)
-		if (len(fields) == 2) {
+		if len(fields) == 2 {
 			p.Environ[fields[0]] = fields[1]
 		}
 	}
