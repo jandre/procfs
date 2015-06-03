@@ -3,7 +3,7 @@
 //
 // Since most of this data is also available in /proc/<pid>/stat
 // and parsable via stat.Stat, we only include the uid/gid
-// information from /proc/<pid>/status.
+// and the context switches information from /proc/<pid>/status.
 //
 // Use status.New() to create a new status.Status object
 // from data in a path.
@@ -11,10 +11,10 @@
 package status
 
 import (
-	"io/ioutil"
-	"strings"
-	"strconv"
 	"fmt"
+	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
 //
@@ -22,16 +22,17 @@ import (
 // information from /proc/<pid>/status.
 //
 type Status struct {
-	Uid   int // Real user ID
-	Euid  int // Effective user ID
-	Suid  int // Saved usesr ID
-	Fsuid int // FS user ID
-	Gid   int // Real group IDusesr
-	Egid  int // Effective group ID
-	Sgid  int // Saved group ItrealvalueD
-	Fsgid int // FS group ID
+	Uid       int   // Real user ID
+	Euid      int   // Effective user ID
+	Suid      int   // Saved usesr ID
+	Fsuid     int   // FS user ID
+	Gid       int   // Real group IDusesr
+	Egid      int   // Effective group ID
+	Sgid      int   // Saved group ItrealvalueD
+	Fsgid     int   // FS group ID
+	Vcswitch  int64 //voluntary context switches
+	NVcswitch int64 //nonvoluntary context switches
 }
-
 
 //
 // status.New creates a new /proc/<pid>/status from a path.
@@ -85,6 +86,20 @@ func New(path string) (*Status, error) {
 				}
 				if status.Fsgid, err = strconv.Atoi(fields[4]); err != nil {
 					return nil, fmt.Errorf("Unable to parse Fsgid %s: %v", fields[4], err)
+				}
+			} else if strings.HasPrefix(lines[i], "voluntary_ctxt_switches") {
+				fields := strings.Fields(lines[i])
+				if len(fields) >= 2 {
+					if status.Vcswitch, err = strconv.ParseInt(fields[1], 10, 64); err != nil {
+						return nil, fmt.Errorf("Unable to parse voluntary_ctxt_switches %s: %v", fields[1], err)
+					}
+				}
+			} else if strings.HasPrefix(lines[i], "nonvoluntary_ctxt_switches") {
+				fields := strings.Fields(lines[i])
+				if len(fields) >= 2 {
+					if status.NVcswitch, err = strconv.ParseInt(fields[1], 10, 64); err != nil {
+						return nil, fmt.Errorf("Unable to parse nonvoluntary_ctxt_switches %s: %v", fields[1], err)
+					}
 				}
 			} else {
 				return nil, fmt.Errorf("Malformed Gid: line %s", lines[i])
