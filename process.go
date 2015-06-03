@@ -48,8 +48,8 @@ type Process struct {
 	prefix    string            // directory path, e.g. /proc/<pid>
 	stat      *stat.Stat        // Status information from /proc/pid/stat - see Stat()
 	statm     *statm.Statm      // Memory Status information from /proc/pid/statm - see Statm()
+	status    *status.Status    //Status information from /proc/pid/status
 	limits    *limits.Limits    // Per process rlimit settings from /proc/pid/limits - see Limits()
-	status    *status.Status    //Status information from /proc/pid/status see Status()
 	loginuid  *int              // Maybe loginuid from /proc/pid/loginuid - see Loginuid()
 	sessionid *int              // Maybe sessionid from /proc/pid/sessionid- see Sessionid()
 
@@ -98,6 +98,8 @@ func NewProcessFromPath(pid int, prefix string, lazy bool) (*Process, error) {
 	if !lazy {
 		// preload all of the subdirs
 		process.Stat()
+		process.Statm()
+		process.Status()
 		process.Limits()
 		process.Loginuid()
 		process.Sessionid()
@@ -173,6 +175,20 @@ func (p *Process) Stat() (*stat.Stat, error) {
 	}
 
 	return p.stat, nil
+}
+
+//
+// Parser for /proc/<pid>/statm
+//
+func (p *Process) Statm() (*statm.Statm, error) {
+	var err error
+	if p.statm == nil {
+		if p.statm, err = statm.New(path.Join(p.prefix, "statm")); err != nil {
+			return nil, err
+		}
+	}
+
+	return p.statm, nil
 }
 
 //
