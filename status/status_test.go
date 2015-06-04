@@ -1,8 +1,9 @@
 package status
 
 import (
-	"github.com/jandre/procfs/util"
 	"testing"
+
+	"github.com/jandre/procfs/util"
 )
 
 func TestParsingStatus(t *testing.T) {
@@ -24,5 +25,11 @@ func TestParsingStatus(t *testing.T) {
 
 	if s.Gid != 1001 {
 		t.Fatal("Gid should be 1001, instead:", s.Gid)
+	}
+	if s.Vcswitch != 72058 {
+		t.Fatal("Vcswitch should be 75958, instead,", s.Vcswitch)
+	}
+	if s.NVcswitch != 3109 {
+		t.Fatal("NVcswitch should be 75958, instead,", s.NVcswitch)
 	}
 }
