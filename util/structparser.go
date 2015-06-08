@@ -85,6 +85,12 @@ func parseField(field interface{}, line string) error {
 			return err
 		}
 		*field = jiffiesToTime(jiffies)
+	case *time.Duration:
+		jiffies, err := strconv.ParseInt(line, 10, 64)
+		if err != nil {
+			return nil
+		}
+		*field = jiffiesToDuration(jiffies)
 	default:
 		return fmt.Errorf("unsupported field type %T", field)
 	}

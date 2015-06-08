@@ -36,7 +36,7 @@ import (
 import "C"
 
 //
-// systemStart() attempts to detect the system start time. 
+// systemStart() attempts to detect the system start time.
 //
 // It will attempt to fetch the system start time by parsing /proc/stat
 // look for the btime line, and converting that to an int64 value (the start
@@ -84,6 +84,11 @@ var GLOBAL_SYSTEM_START int64 = systemStart()
 //
 func jiffiesToTime(jiffies int64) time.Time {
 	ticks := C.sysconf(C._SC_CLK_TCK)
-	return time.Unix(GLOBAL_SYSTEM_START + jiffies/int64(ticks), 0)
+	return time.Unix(GLOBAL_SYSTEM_START+jiffies/int64(ticks), 0)
 }
 
+func jiffiesToDuration(jiffies int64) time.Duration {
+	ticks := C.sysconf(C._SC_CLK_TCK)
+	return time.Duration(jiffies / int64(ticks))
+
+}
