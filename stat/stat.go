@@ -31,10 +31,10 @@ type Stat struct {
 	Cminflt             int64         // number of minor faults with child's
 	Majflt              int64         // number of major faults
 	Cmajflt             int64         // number of major faults with child's
-	Utime               time.Duration // user mode jiffies
-	Stime               time.Duration // kernel mode jiffies
-	Cutime              time.Duration // user mode jiffies with child's
-	Cstime              time.Duration // kernel mode jiffies with child's
+	Utime               time.Duration // user mode in nanoseconds
+	Stime               time.Duration // kernel mode in nanoseconds
+	Cutime              time.Duration // user mode in nanoseconds with child's
+	Cstime              time.Duration // kernel mode in nanoseconds with child's
 	Priority            int64         // priority level
 	Nice                int64         // nice level
 	NumThreads          int64         // number of threads
