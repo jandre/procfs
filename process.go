@@ -30,6 +30,7 @@ import (
 	"strings"
 
 	"github.com/jandre/procfs/limits"
+	"github.com/jandre/procfs/maps"
 	"github.com/jandre/procfs/stat"
 	"github.com/jandre/procfs/statm"
 	"github.com/jandre/procfs/status"
@@ -48,11 +49,11 @@ type Process struct {
 	prefix    string            // directory path, e.g. /proc/<pid>
 	stat      *stat.Stat        // Status information from /proc/pid/stat - see Stat()
 	statm     *statm.Statm      // Memory Status information from /proc/pid/statm - see Statm()
-	status    *status.Status    //Status information from /proc/pid/status
+	status    *status.Status    // Status information from /proc/pid/status
 	limits    *limits.Limits    // Per process rlimit settings from /proc/pid/limits - see Limits()
 	loginuid  *int              // Maybe loginuid from /proc/pid/loginuid - see Loginuid()
 	sessionid *int              // Maybe sessionid from /proc/pid/sessionid- see Sessionid()
-
+	maps      []*maps.Maps      // Process adderss space
 }
 
 //
@@ -103,6 +104,7 @@ func NewProcessFromPath(pid int, prefix string, lazy bool) (*Process, error) {
 		process.Limits()
 		process.Loginuid()
 		process.Sessionid()
+		process.Maps()
 	}
 
 	return process, nil
@@ -270,4 +272,18 @@ func (p *Process) readEnviron() {
 			p.Environ[fields[0]] = fields[1]
 		}
 	}
+}
+
+//
+// Parser for /proc/<pid>/maps
+//
+func (p *Process) Maps() ([]*maps.Maps, error) {
+	var err error
+	if p.stat == nil {
+		if p.maps, err = maps.New(path.Join(p.prefix, "maps")); err != nil {
+			return nil, err
+		}
+	}
+
+	return p.maps, nil
 }
