@@ -1,0 +1,19 @@
+5629afed1000-5629afed9000 r-xp 00000000 103:05 1439104                   /bin/cat
+5629b00d8000-5629b00d9000 r--p 00007000 103:05 1439104                   /bin/cat
+5629b00d9000-5629b00da000 rw-p 00008000 103:05 1439104                   /bin/cat
+5629b0b6b000-5629b0b8c000 rw-p 00000000 00:00 0                          [heap]
+7fa5a44d7000-7fa5a48e8000 r--p 00000000 103:05 1835379                   /usr/lib/locale/locale-archive
+7fa5a48e8000-7fa5a4acf000 r-xp 00000000 103:05 1570001                   /lib/x86_64-linux-gnu/libc-2.27.so
+7fa5a4acf000-7fa5a4ccf000 ---p 001e7000 103:05 1570001                   /lib/x86_64-linux-gnu/libc-2.27.so
+7fa5a4ccf000-7fa5a4cd3000 r--p 001e7000 103:05 1570001                   /lib/x86_64-linux-gnu/libc-2.27.so
+7fa5a4cd3000-7fa5a4cd5000 rw-p 001eb000 103:05 1570001                   /lib/x86_64-linux-gnu/libc-2.27.so
+7fa5a4cd5000-7fa5a4cd9000 rw-p 00000000 00:00 0 
+7fa5a4cd9000-7fa5a4d00000 r-xp 00000000 103:05 1569997                   /lib/x86_64-linux-gnu/ld-2.27.so
+7fa5a4ebd000-7fa5a4ee1000 rw-p 00000000 00:00 0 
+7fa5a4f00000-7fa5a4f01000 r--p 00027000 103:05 1569997                   /lib/x86_64-linux-gnu/ld-2.27.so
+7fa5a4f01000-7fa5a4f02000 rw-p 00028000 103:05 1569997                   /lib/x86_64-linux-gnu/ld-2.27.so
+7fa5a4f02000-7fa5a4f03000 rw-p 00000000 00:00 0 
+7fff3930d000-7fff3932e000 rw-p 00000000 00:00 0                          [stack]
+7fff393d1000-7fff393d4000 r--p 00000000 00:00 0                          [vvar]
+7fff393d4000-7fff393d6000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
